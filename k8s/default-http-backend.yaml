@@ -1,0 +1,78 @@
+---
+# Deployment for the custom error page service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: default-http-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: default-http-backend
+  template:
+    metadata:
+      labels:
+        app: default-http-backend
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: error-pages
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: error-pages
+          configMap:
+            name: default-http-backend-config
+---
+# Service exposing the custom error page service
+apiVersion: v1
+kind: Service
+metadata:
+  name: default-http-backend
+spec:
+  selector:
+    app: default-http-backend
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+---
+# ConfigMap holding the custom 400 error page content
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: default-http-backend-config
+data:
+  400.html: |
+    <html>
+      <head>
+        <title>400 400 400 400 400 400 400</title>
+      </head>
+      <body>
+        <h1>400 Bad Requestssxxxxxx</h1>
+        <p>Your custom error message goes here.xxxxxxxx</p>
+      </body>
+    </html>
+  404.html: |
+    <html>
+      <head>
+        <title>404 Status</title>
+      </head>
+      <body>
+        <h1>404 404 404 404 404 404 404/h1>
+        <p>Your custom error message goes here.xxxxxxxx</p>
+      </body>
+    </html>
+  500.html: |
+    <html>
+      <head>
+        <title>500 500 500 500 500 500</title>
+      </head>
+      <body>
+        <h1>500 error</h1>
+        <p>Your custom error message goes here.xxxxxxxx</p>
+      </body>
+    </html>

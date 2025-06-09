@@ -1,0 +1,90 @@
+---
+# Deployment for the custom error page service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-default-backend
+  # namespace: ingress-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-default-backend
+  template:
+    metadata:
+      labels:
+        app: custom-default-backend
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: error-pages
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: error-pages
+          configMap:
+            name: custom-default-backend-config
+---
+# Service exposing the custom error page service
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-default-backend
+  # namespace: ingress-nginx
+spec:
+  selector:
+    app: custom-default-backend
+  ports:
+    - port: 80
+      targetPort: 80
+---
+# ConfigMap holding the custom 400 error page content
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-default-backend-config
+  # namespace: ingress-nginx
+data:
+  index.html: |
+    <html>
+      <head>
+        <title>index page</title>
+      </head>
+      <body>
+        <h1>index pagessxxxxxx</h1>
+        <p>Your custom error message goes here.xxxxxxxx</p>
+      </body>
+    </html>
+  400.html: |
+    <html>
+      <head>
+        <title>400 Bad Request</title>
+      </head>
+      <body>
+        <h1>400 Bad Requestssxxxxxx</h1>
+        <p>Your custom error message goes here.xxxxxxxx</p>
+      </body>
+    </html>
+  404.html: |
+    <html>
+      <head>
+        <title>404 Status</title>
+      </head>
+      <body>
+        <h1>404 Bad Requestssxxxxxx</h1>
+        <p>Your custom error message goes here.xxxxxxxx</p>
+      </body>
+    </html>
+  500.html: |
+    <html>
+      <head>
+        <title>500 Status</title>
+      </head>
+      <body>
+        <h1>500 Bad Requestssxxxxxx</h1>
+        <p>Your custom error message goes here.xxxxxxxx</p>
+      </body>
+    </html>

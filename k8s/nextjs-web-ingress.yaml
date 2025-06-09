@@ -1,0 +1,379 @@
+# https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: nextjs-web-ingress
+#  namespace: default
+#spec:
+#  rules:
+#    - host: nextjs-web.com
+#      http:
+#        paths:
+#          - backend:
+#              serviceName: nextjs-web-service
+#              servicePort: 8080
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nextjs-web-ingress
+  labels:
+    service_type: backend
+  namespace: default
+  annotations:
+    # nginx.ingress.kubernetes.io/hsts: "false"
+    # kubernetes.io/ingress.class: nginx
+    # nginx.ingress.kubernetes.io/hsts: "true"
+    # nginx.ingress.kubernetes.io/hsts-max-age: "31539999"
+    # nginx.ingress.kubernetes.io/hsts-include-subdomains: "false"
+    # nginx.ingress.kubernetes.io/whitelist-source-range: "192.168.1.0/24,203.0.113.0/24"
+    # nginx.ingress.kubernetes.io/whitelist-source-range: "192.168.1.0/24,203.0.113.0/24,10.244.0.1"
+    # nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    # nginx.ingress.kubernetes.io/default-backend: ingress-nginx/custom-default-backend
+    # nginx.ingress.kubernetes.io/default-backend: default/custom-nginx-error-service
+    # nginx.ingress.kubernetes.io/custom-http-errors: "302,308,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,418,421,422,423,424,425,426,428,429,431,451,500,501,502,503,504,505,506,507,508,510,511"
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 1M
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    # nginx.ingress.kubernetes.io/default-backend: custom-default-backend
+    # nginx.ingress.kubernetes.io/custom-http-errors: "400"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      more_set_headers "X-Test-Annotation: snippet-ok";
+
+      error_page 400 /err400.html;
+
+      location = /err400.html {
+        internal;
+        return 400 '
+        <html>
+        <head><title>Custom Bad Request</title></head>
+        <body>
+        <center><h1>Custom Bad Request</h1></center>
+        </body>
+        </html>
+        ';
+      }
+
+      # error_page 404 /err404.html;
+      # location = /err404.html {
+      #   internal;
+      #   return 404 '
+      #     <html>
+      #     <head><title>404 Not Found</title></head>
+      #     <body>
+      #     <center><h1>404 Not Found</h1></center>
+      #     </body>
+      #     </html>
+      #   ';
+      # }
+
+    # nginx.ingress.kubernetes.io/server-snippet: |
+    #   more_set_headers "X-Test-Annotation: snippet-ok";
+    #   # kubectl cp ingress-nginx/ingress-nginx-controller-58d5f7ccc6-zt7wh:/etc/nginx/nginx.conf test.fff
+    #   # add_header Last-Modified $date_gmt;
+    #   # add_header Cache-Control 'no-store, no-cache';
+    #   # server_tokens off;
+    #   # proxy_intercept_errors on;
+    #   # error_page 302 308 400 401 402 403 404 405 406 407 408 409 410 411 412 413 414 415 416 417 418 421 422 423 424 425 426 428 429 431 451 500 501 502 503 504 505 506 507 508 510 511 http://localhost;
+    #   # error_page 400 =400 http://localhost/400.html;
+    #   # proxy_intercept_errors on;
+      # >>>
+
+    
+
+    #   # # >>>
+    #   # error_page 400 =400 /errsvc400;
+
+    #   # location = /errsvc400 {
+    #   #   internal;
+    #   #   # Proxy to the error-pages service
+    #   #   # proxy_pass         http://custom-default-backend.default.svc.cluster.local:80/400.html;
+    #   #   proxy_pass         http://custom-default-backend.default:80/500.html;
+    #   #   # proxy_set_header   Host              $host;
+    #   #   # proxy_set_header   X-Original-URI    $request_uri;
+    #   #   # proxy_set_header   X-Original-Method $request_method;
+    #   #   # proxy_pass_request_body off;
+    #   #   # proxy_set_header   Content-Length    "";
+
+    #   # }
+    #   # # <<<
+
+    #   # error_page 400 500 502 503 504 http://localhost/500.html;
+    #   # error_page 400 404 500 $scheme://$host/error$request_uri;
+    #   # error_page 302 error$request_uri;
+    #   # error_page 400 $scheme://$host$request_uri;
+    #   # error_page 404 $scheme://$host$request_uri;
+    #   # error_page 400 /500.html;
+    #   # error_page 400 @custom_upstream-default-backend_400;
+    #   # error_page 400 $scheme://$host:$server_port/$status.html;
+    #   add_header fromserversnippet $http_x_code;
+    #   # work vvvvvvvv
+    #   # add_header Strict-Transport-Security "max-age=31536001; includeSubDomains";
+    #   # Access-Control-Allow-Origin: https://developer.mozilla.org
+    #   # location /error {
+    #   #   internal;
+        
+    #   #   # Ensure that modsecurity will not run on custom error pages or they might be blocked
+        
+    #   #   proxy_intercept_errors off;
+        
+    #   #   proxy_set_header       X-Code             302;
+    #   #   proxy_set_header       X-Format           $http_accept;
+    #   #   proxy_set_header       X-Original-URI     $request_uri;
+    #   #   proxy_set_header       X-Namespace        $namespace;
+    #   #   proxy_set_header       X-Ingress-Name     $ingress_name;
+    #   #   proxy_set_header       X-Service-Name     $service_name;
+    #   #   proxy_set_header       X-Service-Port     $service_port;
+    #   #   proxy_set_header       X-Request-ID       $req_id;
+    #   #   proxy_set_header       X-Forwarded-For    $remote_addr;
+    #   #   proxy_set_header       Host               $best_http_host;
+        
+    #   #   set $proxy_upstream_name "upstream-default-backend";
+        
+    #   #   rewrite                (.*) / break;
+        
+    #   #   proxy_pass            http://upstream_balancer;
+        
+    #   # }
+    #   # location /400.html {
+    #   #   internal;
+        
+    #   #   # Ensure that modsecurity will not run on custom error pages or they might be blocked
+        
+    #   #   proxy_intercept_errors off;
+        
+    #   #   proxy_set_header       X-Code             400;
+    #   #   proxy_set_header       X-Format           $http_accept;
+    #   #   proxy_set_header       X-Original-URI     $request_uri;
+    #   #   proxy_set_header       X-Namespace        $namespace;
+    #   #   proxy_set_header       X-Ingress-Name     $ingress_name;
+    #   #   proxy_set_header       X-Service-Name     $service_name;
+    #   #   proxy_set_header       X-Service-Port     $service_port;
+    #   #   proxy_set_header       X-Request-ID       $req_id;
+    #   #   proxy_set_header       X-Forwarded-For    $remote_addr;
+    #   #   proxy_set_header       Host               $best_http_host;
+        
+    #   #   set $proxy_upstream_name "upstream-default-backend";
+        
+    #   #   rewrite                (.*) / break;
+        
+    #   #   proxy_pass            http://upstream_balancer;
+        
+    #   # }
+    #   # location /404.html {
+    #   #   internal;
+        
+    #   #   # Ensure that modsecurity will not run on custom error pages or they might be blocked
+        
+    #   #   proxy_intercept_errors off;
+        
+    #   #   proxy_set_header       X-Code             404;
+    #   #   proxy_set_header       X-Format           $http_accept;
+    #   #   proxy_set_header       X-Original-URI     $request_uri;
+    #   #   proxy_set_header       X-Namespace        $namespace;
+    #   #   proxy_set_header       X-Ingress-Name     $ingress_name;
+    #   #   proxy_set_header       X-Service-Name     $service_name;
+    #   #   proxy_set_header       X-Service-Port     $service_port;
+    #   #   proxy_set_header       X-Request-ID       $req_id;
+    #   #   proxy_set_header       X-Forwarded-For    $remote_addr;
+    #   #   proxy_set_header       Host               $best_http_host;
+        
+    #   #   set $proxy_upstream_name "upstream-default-backend";
+        
+    #   #   rewrite                (.*) / break;
+        
+    #   #   proxy_pass            http://upstream_balancer;
+        
+    #   # }
+    #   # location /500.html {
+    #   #   internal;
+        
+    #   #   # Ensure that modsecurity will not run on custom error pages or they might be blocked
+        
+    #   #   proxy_intercept_errors off;
+        
+    #   #   proxy_set_header       X-Code             500;
+    #   #   proxy_set_header       X-Format           $http_accept;
+    #   #   proxy_set_header       X-Original-URI     $request_uri;
+    #   #   proxy_set_header       X-Namespace        $namespace;
+    #   #   proxy_set_header       X-Ingress-Name     $ingress_name;
+    #   #   proxy_set_header       X-Service-Name     $service_name;
+    #   #   proxy_set_header       X-Service-Port     $service_port;
+    #   #   proxy_set_header       X-Request-ID       $req_id;
+    #   #   proxy_set_header       X-Forwarded-For    $remote_addr;
+    #   #   proxy_set_header       Host               $best_http_host;
+        
+    #   #   set $proxy_upstream_name "upstream-default-backend";
+        
+    #   #   rewrite                (.*) / break;
+        
+    #   #   proxy_pass            http://upstream_balancer;
+        
+    #   # }
+    #   # location @custom_upstream-default-backend_400 {
+    #   #   internal;
+        
+    #   #   # Ensure that modsecurity will not run on custom error pages or they might be blocked
+        
+    #   #   proxy_intercept_errors off;
+        
+    #   #   proxy_set_header       X-Code             400;
+    #   #   proxy_set_header       X-Format           $http_accept;
+    #   #   proxy_set_header       X-Original-URI     $request_uri;
+    #   #   proxy_set_header       X-Namespace        $namespace;
+    #   #   proxy_set_header       X-Ingress-Name     $ingress_name;
+    #   #   proxy_set_header       X-Service-Name     $service_name;
+    #   #   proxy_set_header       X-Service-Port     $service_port;
+    #   #   proxy_set_header       X-Request-ID       $req_id;
+    #   #   proxy_set_header       X-Forwarded-For    $remote_addr;
+    #   #   proxy_set_header       Host               $best_http_host;
+        
+    #   #   set $proxy_upstream_name "upstream-default-backend";
+        
+    #   #   rewrite                (.*) / break;
+        
+    #   #   proxy_pass            http://upstream_balancer;
+        
+    #   # }
+    #   # location @custom_upstream-default-backend_500 {
+    #   #   internal;
+        
+    #   #   # Ensure that modsecurity will not run on custom error pages or they might be blocked
+        
+    #   #   proxy_intercept_errors off;
+        
+    #   #   proxy_set_header       X-Code             500;
+    #   #   proxy_set_header       X-Format           $http_accept;
+    #   #   proxy_set_header       X-Original-URI     $request_uri;
+    #   #   proxy_set_header       X-Namespace        $namespace;
+    #   #   proxy_set_header       X-Ingress-Name     $ingress_name;
+    #   #   proxy_set_header       X-Service-Name     $service_name;
+    #   #   proxy_set_header       X-Service-Port     $service_port;
+    #   #   proxy_set_header       X-Request-ID       $req_id;
+    #   #   proxy_set_header       X-Forwarded-For    $remote_addr;
+    #   #   proxy_set_header       Host               $best_http_host;
+        
+    #   #   set $proxy_upstream_name "upstream-default-backend";
+        
+    #   #   rewrite                (.*) / break;
+        
+    #   #   proxy_pass            http://upstream_balancer;
+        
+    #   # }
+
+   
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      # chunked_transfer_encoding off ;
+      
+      # if ($http_origin ~* (^https?:\/\/(rmchannel-wealth-dev2-eks\.se\.scb\.co\.th|adminchannel-wealth-dev2-eks\.se\.scb\.co\.th|wplan\.local:3000|localhost:3000))) {
+      #     set $cors "true";
+      # }
+      
+      # if ($request_method = 'OPTIONS') {
+      #   set $cors "${cors}options";
+      # }
+      # if ($cors = "true") {
+      #   add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+      #   add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, PATCH, OPTIONS' always;
+      #   add_header 'Access-Control-Allow-Headers' 'X-Forwarded-For,X-Forwarded-Host,X-Forwarded-Proto,X-Real-IP,Accept,Origin,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,customer-id,mock-flag,risk-level,age-select,doc-no,case-id,rm-id' always;
+      #   add_header 'Access-Control-Allow-Credentials' 'true' always;
+      # }
+      # if ($cors = "trueoptions") {
+      #   add_header 'Access-Control-Allow-Origin' "$http_origin";
+      #   add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, PATCH, OPTIONS';
+      #   add_header 'Access-Control-Allow-Headers' 'X-Forwarded-For,X-Forwarded-Host,X-Forwarded-Proto,X-Real-IP,Accept,Origin,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,customer-id,mock-flag,risk-level,age-select,doc-no,case-id,rm-id';
+      #   add_header 'Access-Control-Allow-Credentials' 'true';
+      #   add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+      #   add_header 'Access-Control-Max-Age' 1728000;
+      #   add_header 'Content-Type' 'text/plain charset=UTF-8';
+      #   add_header 'Content-Length' 0;
+      #   return 204;
+      # }
+spec:
+  # ingressClassName: nginx
+  tls:
+    - hosts:
+        - nextjs-web.example
+      secretName: example-tls
+  rules:
+    - host: nextjs-web.example
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                # name: error-pages-svc
+                # port:
+                #   number: 80
+                name: nextjs-web-service
+                port:
+                  number: 3000
+          # - path: /test(/|$)(.*)
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       # name: error-pages-svc
+          #       # port:
+          #       #   number: 80
+          #       name: nextjs-web-service
+          #       port:
+          #         number: 3000
+          - path: /rmchannel(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: rmchannel
+                port:
+                  number: 8090
+          - path: /adminchannel(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: adminchannel
+                port:
+                  number: 8089
+          - path: /authserver(/|$)(oauth/.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: authserver
+                port:
+                  number: 8088
+          - path: /authserver(/|$)(v1/user/me|v1/logout)
+            pathType: Prefix
+            backend:
+              service:
+                name: authserver
+                port:
+                  number: 8088
+          - path: /custprof(/|$)(v1/customer-profile/.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: custprof
+                port:
+                  number: 9004
+          - path: /custauth(/|$)(v1/customer-auth/.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: custauth
+                port:
+                  number: 9002
+          - path: /conso(/|$)(v1/consolidate-statement/.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: conso
+                port:
+                  number: 9006
+          - path: /commonsvc(/|$)(v1/common-service/.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: commonsvc
+                port:
+                  number: 9008
+          

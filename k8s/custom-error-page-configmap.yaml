@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingress-error-pages
+  namespace: ingress-nginx
+data:
+  400.html: |
+    <html><body><h1>400 – Bad Request</h1><p>Oops, your payload…</p></body></html>
+  404.html: |
+    <html><body><h1>404 – Not Found</h1><p>We can’t find that resource.</p></body></html>
+  500.html: |
+    <html><body><h1>500 – Server Error</h1><p>Something broke.</p></body></html>

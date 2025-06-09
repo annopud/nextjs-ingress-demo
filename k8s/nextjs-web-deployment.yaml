@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextjs-web
+  labels:
+    app: nextjs-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextjs-web
+  template:
+    metadata:
+      labels:
+        app: nextjs-web
+    spec:
+      containers:
+        - name: nextjs-web
+          image: nextjs-example:1.0.0
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextjs-web-service
+spec:
+  selector:
+    app: nextjs-web
+  # type: LoadBalancer
+  ports:
+    # - protocol: TCP
+    - port: 3000
+      targetPort: 3000
+      # nodePort: 30000
+# ---
+# apiVersion: v1
+# kind: Endpoints
+# metadata:
+#   name: nextjs-web-service
+# subsets:
+# - addresses:
+#   - ip: 192.168.65.254   # e.g., host.docker.internal or 10.0.2.2
+#   # - ip: 10.244.0.1   # e.g., host.docker.internal or 10.0.2.2
+#   # - ip: 10.244.0.46   # e.g., host.docker.internal or 10.0.2.2
+#   ports:
+#   - port: 8081
+
+# # # ingress-nginx-controller-5c47c6d67f-fg4pz:/etc/nginx$ nslookup host.docker.internal
+# # # Server:		10.96.0.10
+# # # Address:	10.96.0.10:53
+
+# # # Non-authoritative answer:
+# # # Name:	host.docker.internal
+# # # Address: 192.168.65.254
+
+# # # Non-authoritative answer:
+# # # Name:	host.docker.internal
+# # # Address: fdc4:f303:9324::254

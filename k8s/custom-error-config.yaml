@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: error-pages-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: error-pages
+  template:
+    metadata:
+      labels:
+        app: error-pages
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:stable-alpine
+          volumeMounts:
+            - name: error-pages
+              mountPath: /usr/share/nginx/html
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: error-pages
+          configMap:
+            name: custom-error-pages
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: error-pages-svc
+spec:
+  selector:
+    app: error-pages
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+      # nodePort: 30001
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-error-pages
+data:
+  400.html: |
+    <html>
+      <head><title>Error400</title></head>
+      <body>
+        <h1>Something went wrong</h1>
+        <p>Please try again later.</p>
+      </body>
+    </html>
+  custom_400.html: |
+    <html>
+      <head><title>Error</title></head>
+      <body>
+        <h1>Something went wrong</h1>
+        <p>Please try again later.</p>
+      </body>
+    </html>
+  index.html: |
+    <html>
+      <head><title>index</title></head>
+      <body>
+        <h1>This is index file</h1>
+      </body>
+    </html>
+
+# kubectl create deploy -n ingress-default-backend sorry-page --image=sbeliakou/nginx-sorry-page

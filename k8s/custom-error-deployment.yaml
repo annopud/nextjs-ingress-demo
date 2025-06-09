@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-error-page
+  namespace: default
+data:
+  400.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>400 Bad Request</title>
+    </head>
+    <body>
+      <h1>400 Bad Request</h1>
+      <p>Your request is invalid.</p>
+    </body>
+    </html>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-error-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-error
+  template:
+    metadata:
+      labels:
+        app: custom-error
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          volumeMounts:
+            - name: error-page
+              mountPath: /usr/share/nginx/html
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: error-page
+          configMap:
+            name: custom-error-page
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-error-service
+  namespace: default
+spec:
+  selector:
+    app: custom-error
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

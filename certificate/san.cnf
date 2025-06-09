@@ -1,0 +1,20 @@
+[ req ]
+default_bits       = 2048
+prompt             = no
+default_md         = sha256
+distinguished_name = dn
+req_extensions     = req_ext
+x509_extensions    = req_ext
+
+[ dn ]
+CN = nextjs-web.example
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = nextjs-web.example
+DNS.2 = nextjs-web.copy
+DNS.3 = localhost
+# Optionally, add more DNS entries:
+# DNS.2 = www.nextjs-web.example
