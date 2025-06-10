@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-clients
+  labels:
+    app: spring-clients
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-clients
+  template:
+    metadata:
+      labels:
+        app: spring-clients
+    spec:
+      containers:
+        - name: spring-clients
+          image: spring-clients:1.0.0
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-clients-service
+spec:
+  selector:
+    app: spring-clients
+  ports:
+    - port: 8080
+      targetPort: 8080
+

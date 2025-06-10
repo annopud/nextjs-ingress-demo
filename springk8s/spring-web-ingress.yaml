@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: spring-web-ingress
+  labels:
+    service_type: backend
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 1M
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - spring-web.example
+      secretName: spring-web-tls
+  rules:
+    - host: spring-web.example
+      http:
+        paths:
+          - path: /main(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: spring-clients-service
+                port:
+                  number: 8080
+          - path: /develop(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: spring-clients-develop-service
+                port:
+                  number: 8081
