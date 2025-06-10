@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: spring-clients
-  labels:
-    app: spring-clients
 spec:
   replicas: 1
   selector:
@@ -14,11 +12,13 @@ spec:
       labels:
         app: spring-clients
     spec:
+      serviceAccountName: spring-cloud-kubernetes-sa  # Added
       containers:
         - name: spring-clients
           image: spring-clients:1.0.0
           ports:
-            - containerPort: 8080
+            - containerPort: 8080  # Changed to match service
+
 ---
 apiVersion: v1
 kind: Service
@@ -29,5 +29,4 @@ spec:
     app: spring-clients
   ports:
     - port: 8080
-      targetPort: 8080
-
+      targetPort: 8080  # Simplified
